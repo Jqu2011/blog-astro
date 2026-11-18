@@ -1,24 +1,30 @@
 ---
 import { Image } from 'astro:assets';
 import { getCollection } from 'astro:content';
+import Asistente from '../../components/Asistente.astro';
 import BaseHead from '../../components/BaseHead.astro';
 import Footer from '../../components/Footer.astro';
 import FormattedDate from '../../components/FormattedDate.astro';
 import Header from '../../components/Header.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
 
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const posts = (await getCollection('blog')).sort(
 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="es">
 	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+		<BaseHead title={`Blog | ${SITE_TITLE}`} description={SITE_DESCRIPTION} />
 		<style>
 			main {
 				width: 960px;
+			}
+			h1 {
+				text-align: center;
+				margin-bottom: 1em;
 			}
 			ul {
 				display: flex;
@@ -55,14 +61,20 @@ const posts = (await getCollection('blog')).sort(
 			}
 			.title {
 				margin: 0;
+				font-size: 1.35em;
 				color: rgb(var(--black));
-				line-height: 1;
+				line-height: 1.15;
 			}
 			.date {
 				margin: 0;
 				color: rgb(var(--gray));
 			}
-			ul li a:hover h4,
+			.summary {
+				margin: 0.4em 0 0;
+				font-size: 0.9em;
+				color: rgb(var(--gray-dark));
+			}
+			ul li a:hover .title,
 			ul li a:hover .date {
 				color: rgb(var(--accent));
 			}
@@ -89,18 +101,24 @@ const posts = (await getCollection('blog')).sort(
 	<body>
 		<Header />
 		<main>
+			<h1>Blog</h1>
 			<section>
 				<ul>
 					{posts.map((post) => (
 						<li>
-							<a href={`/blog/${post.id}/`}>
+							<a href={`${base}/blog/${post.id}/`}>
 								{post.data.heroImage && (
-									<Image width={720} height={360} src={post.data.heroImage} alt="" />
+									<Image
+										width={720}
+										src={post.data.heroImage}
+										alt={`Portada de ${post.data.title}`}
+									/>
 								)}
-								<h4 class="title">{post.data.title}</h4>
+								<h2 class="title">{post.data.title}</h2>
 								<p class="date">
 									<FormattedDate date={post.data.pubDate} />
 								</p>
+								<p class="summary">{post.data.description}</p>
 							</a>
 						</li>
 					))}
@@ -108,5 +126,6 @@ const posts = (await getCollection('blog')).sort(
 			</section>
 		</main>
 		<Footer />
+		<Asistente />
 	</body>
 </html>

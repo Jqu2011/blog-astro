@@ -1,0 +1,644 @@
+---
+import { bienvenida, sugerencias } from '../data/asistente';
+import { CONTACT_EMAIL, LINKEDIN_URL } from '../consts';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+
+<div
+	class="asistente"
+	data-asistente
+	data-base={base}
+	data-email={CONTACT_EMAIL}
+	data-linkedin={LINKEDIN_URL}
+>
+	<button
+		class="asistente-toggle"
+		type="button"
+		data-asistente-toggle
+		aria-expanded="false"
+		aria-controls="asistente-panel"
+		aria-label="Abrir el asistente de Julia"
+	>
+		<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+			<path
+				fill="currentColor"
+				d="M12 3C7 3 3 6.58 3 11c0 2.1.94 4.01 2.5 5.39-.1.9-.42 2.05-1.33 3.06a.6.6 0 0 0 .5.98c1.9-.06 3.3-.83 4.18-1.5.98.3 2.04.47 3.15.47 5 0 9-3.58 9-8s-4-8-9-8Z"
+			/>
+			<circle cx="8.2" cy="11" r="1.15" fill="#16233f" />
+			<circle cx="12" cy="11" r="1.15" fill="#16233f" />
+			<circle cx="15.8" cy="11" r="1.15" fill="#16233f" />
+		</svg>
+		<span class="asistente-toggle-texto" data-asistente-texto>¿Hablamos?</span>
+	</button>
+
+	<section
+		class="asistente-panel"
+		id="asistente-panel"
+		role="dialog"
+		aria-modal="false"
+		aria-labelledby="asistente-titulo"
+		hidden
+		data-asistente-panel
+	>
+		<header class="asistente-cabecera">
+			<div class="asistente-avatar" aria-hidden="true">JQ</div>
+			<div class="asistente-cabecera-texto">
+				<h2 id="asistente-titulo">Asistente de Julia</h2>
+				<p>Respuestas sobre su trabajo</p>
+			</div>
+			<button
+				class="asistente-cerrar"
+				type="button"
+				data-asistente-cerrar
+				aria-label="Cerrar el asistente"
+			>
+				<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+					<path
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2.2"
+						stroke-linecap="round"
+						d="m6 6 12 12M18 6 6 18"
+					></path>
+				</svg>
+			</button>
+		</header>
+
+		<div
+			class="asistente-mensajes"
+			role="log"
+			aria-live="polite"
+			aria-relevant="additions"
+			data-asistente-mensajes
+		>
+			<div class="asistente-mensaje es-bot">
+				<p>{bienvenida}</p>
+			</div>
+		</div>
+
+		<div class="asistente-sugerencias" data-asistente-sugerencias>
+			{
+				sugerencias.map((sugerencia) => (
+					<button type="button" data-asistente-pregunta={sugerencia.pregunta}>
+						{sugerencia.etiqueta}
+					</button>
+				))
+			}
+		</div>
+
+		<form class="asistente-form" data-asistente-form>
+			<label class="sr-only" for="asistente-input">Escribe tu pregunta</label>
+			<input
+				id="asistente-input"
+				type="text"
+				name="pregunta"
+				placeholder="Escribe tu pregunta…"
+				autocomplete="off"
+				maxlength="240"
+				data-asistente-input
+			/>
+			<button type="submit" aria-label="Enviar pregunta">
+				<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+					<path
+						fill="currentColor"
+						d="M3.4 20.4 21 12 3.4 3.6 3.3 10l12 2-12 2z"
+					></path>
+				</svg>
+			</button>
+		</form>
+		<p class="asistente-nota">Asistente local · sin IA externa</p>
+	</section>
+</div>
+
+<style is:global>
+	.asistente {
+		position: fixed;
+		right: 1.25rem;
+		bottom: 1.25rem;
+		z-index: 60;
+		display: flex;
+		flex-direction: column;
+		align-items: flex-end;
+		gap: 0.75rem;
+		pointer-events: none;
+		font-family: var(--font-atkinson), system-ui, sans-serif;
+	}
+
+	.asistente > * {
+		pointer-events: auto;
+	}
+
+	.asistente-toggle {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.55rem;
+		padding: 0.7rem 1.15rem;
+		border: 1px solid rgba(255, 255, 255, 0.16);
+		border-radius: 999px;
+		background: linear-gradient(135deg, #16233f 0%, #2337ff 100%);
+		color: #f7f2e9;
+		font: inherit;
+		font-size: 0.9rem;
+		font-weight: 700;
+		cursor: pointer;
+		box-shadow: 0 10px 30px rgba(15, 18, 25, 0.28);
+		transition:
+			transform 0.2s ease,
+			box-shadow 0.2s ease;
+	}
+
+	.asistente-toggle:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 14px 36px rgba(15, 18, 25, 0.34);
+	}
+
+	.asistente-toggle:focus-visible,
+	.asistente-cerrar:focus-visible,
+	.asistente-form button:focus-visible,
+	.asistente-sugerencias button:focus-visible {
+		outline: 3px solid #ef7a63;
+		outline-offset: 3px;
+	}
+
+	.asistente-toggle svg {
+		flex: none;
+	}
+
+	.asistente-panel {
+		display: flex;
+		flex-direction: column;
+		width: min(382px, calc(100vw - 2rem));
+		max-height: min(620px, calc(100dvh - 7.5rem));
+		overflow: hidden;
+		background: #fff;
+		border: 1px solid rgba(22, 35, 63, 0.08);
+		border-radius: 22px;
+		box-shadow:
+			0 2px 6px rgba(15, 18, 25, 0.08),
+			0 24px 64px rgba(15, 18, 25, 0.28);
+		animation: asistente-entra 0.22s ease-out;
+	}
+
+	.asistente-panel[hidden] {
+		display: none;
+	}
+
+	@keyframes asistente-entra {
+		from {
+			opacity: 0;
+			transform: translateY(12px) scale(0.98);
+		}
+		to {
+			opacity: 1;
+			transform: none;
+		}
+	}
+
+	.asistente-cabecera {
+		display: flex;
+		align-items: center;
+		gap: 0.7rem;
+		padding: 0.95rem 1rem;
+		background:
+			radial-gradient(circle at 12% 0%, rgba(239, 122, 99, 0.35), transparent 45%),
+			linear-gradient(135deg, #16233f 0%, #1f3470 100%);
+		color: #f7f2e9;
+	}
+
+	.asistente-avatar {
+		display: grid;
+		place-items: center;
+		width: 40px;
+		height: 40px;
+		flex: none;
+		border-radius: 50%;
+		background: linear-gradient(135deg, #ef7a63, #f3bd5b);
+		color: #16233f;
+		font-size: 0.78rem;
+		font-weight: 700;
+		letter-spacing: 0.03em;
+	}
+
+	.asistente-cabecera-texto {
+		flex: 1;
+		min-width: 0;
+	}
+
+	.asistente-cabecera h2 {
+		margin: 0;
+		color: #f7f2e9;
+		font-size: 0.98rem;
+		line-height: 1.3;
+	}
+
+	.asistente-cabecera p {
+		margin: 0.15rem 0 0;
+		color: rgba(247, 242, 233, 0.72);
+		font-size: 0.72rem;
+		line-height: 1.3;
+	}
+
+	.asistente-cerrar {
+		display: grid;
+		place-items: center;
+		width: 32px;
+		height: 32px;
+		flex: none;
+		padding: 0;
+		border: 0;
+		border-radius: 50%;
+		background: rgba(255, 255, 255, 0.1);
+		color: #f7f2e9;
+		cursor: pointer;
+	}
+
+	.asistente-cerrar:hover {
+		background: rgba(255, 255, 255, 0.2);
+	}
+
+	.asistente-mensajes {
+		display: flex;
+		flex-direction: column;
+		gap: 0.65rem;
+		flex: 1;
+		min-height: 0;
+		padding: 1rem;
+		background: #f7f5f0;
+		overflow-y: auto;
+		overscroll-behavior: contain;
+		scrollbar-width: thin;
+		scrollbar-color: rgba(22, 35, 63, 0.25) transparent;
+	}
+
+	.asistente-mensaje {
+		max-width: 88%;
+		padding: 0.65rem 0.85rem;
+		border-radius: 16px;
+		font-size: 0.88rem;
+		line-height: 1.5;
+	}
+
+	.asistente-mensaje p {
+		margin: 0;
+	}
+
+	.asistente-mensaje p + p {
+		margin-top: 0.6rem;
+	}
+
+	.asistente-mensaje.es-bot {
+		align-self: flex-start;
+		background: #fff;
+		border: 1px solid #e5e9f0;
+		border-bottom-left-radius: 5px;
+		color: #222939;
+	}
+
+	.asistente-mensaje.es-usuario {
+		align-self: flex-end;
+		background: #16233f;
+		border-bottom-right-radius: 5px;
+		color: #f7f2e9;
+	}
+
+	.asistente-enlaces {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.35rem;
+		margin-top: 0.65rem;
+	}
+
+	.asistente-enlaces a {
+		display: inline-block;
+		padding: 0.28rem 0.65rem;
+		border: 1px solid rgba(35, 55, 255, 0.28);
+		border-radius: 999px;
+		background: rgba(35, 55, 255, 0.06);
+		color: #2337ff;
+		font-size: 0.76rem;
+		font-weight: 700;
+		text-decoration: none;
+		line-height: 1.4;
+	}
+
+	.asistente-enlaces a:hover {
+		background: #2337ff;
+		border-color: #2337ff;
+		color: #fff;
+	}
+
+	.asistente-escribiendo {
+		display: inline-flex;
+		gap: 0.28rem;
+		padding: 0.8rem 0.9rem;
+	}
+
+	.asistente-escribiendo span {
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+		background: #60739f;
+		animation: asistente-pulso 1.1s ease-in-out infinite;
+	}
+
+	.asistente-escribiendo span:nth-child(2) {
+		animation-delay: 0.15s;
+	}
+
+	.asistente-escribiendo span:nth-child(3) {
+		animation-delay: 0.3s;
+	}
+
+	@keyframes asistente-pulso {
+		0%,
+		60%,
+		100% {
+			opacity: 0.35;
+			transform: translateY(0);
+		}
+		30% {
+			opacity: 1;
+			transform: translateY(-2px);
+		}
+	}
+
+	.asistente-sugerencias {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.35rem;
+		padding: 0.7rem 0.9rem 0.2rem;
+		background: #f7f5f0;
+	}
+
+	.asistente-sugerencias button {
+		padding: 0.32rem 0.68rem;
+		border: 1px solid #dbe1ec;
+		border-radius: 999px;
+		background: #fff;
+		color: #16233f;
+		font: inherit;
+		font-size: 0.74rem;
+		cursor: pointer;
+		transition:
+			border-color 0.15s ease,
+			color 0.15s ease;
+	}
+
+	.asistente-sugerencias button:hover {
+		border-color: #2337ff;
+		color: #2337ff;
+	}
+
+	.asistente-form {
+		display: flex;
+		gap: 0.5rem;
+		padding: 0.65rem 0.85rem 0.4rem;
+		background: #f7f5f0;
+	}
+
+	.asistente-form input {
+		flex: 1;
+		min-width: 0;
+		padding: 0.55rem 0.85rem;
+		border: 1px solid #dbe1ec;
+		border-radius: 999px;
+		background: #fff;
+		color: #222939;
+		font: inherit;
+		font-size: 0.86rem;
+	}
+
+	.asistente-form input::placeholder {
+		color: #8d97ab;
+	}
+
+	.asistente-form input:focus {
+		border-color: #2337ff;
+		outline: 2px solid rgba(35, 55, 255, 0.18);
+		outline-offset: 1px;
+	}
+
+	.asistente-form button {
+		display: grid;
+		place-items: center;
+		width: 38px;
+		height: 38px;
+		flex: none;
+		padding: 0;
+		border: 0;
+		border-radius: 50%;
+		background: #2337ff;
+		color: #fff;
+		cursor: pointer;
+	}
+
+	.asistente-form button:hover {
+		background: #000d8a;
+	}
+
+	.asistente-nota {
+		margin: 0;
+		padding: 0 0 0.55rem;
+		background: #f7f5f0;
+		color: #8d97ab;
+		font-size: 0.66rem;
+		text-align: center;
+	}
+
+	@media (max-width: 480px) {
+		.asistente {
+			right: 0.75rem;
+			bottom: 0.75rem;
+		}
+
+		.asistente-panel {
+			width: calc(100vw - 1.5rem);
+			max-height: calc(100dvh - 6.5rem);
+		}
+
+		.asistente-toggle {
+			padding: 0.75rem;
+		}
+
+		.asistente-toggle-texto {
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			overflow: hidden;
+			clip-path: inset(50%);
+			white-space: nowrap;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.asistente-panel {
+			animation: none;
+		}
+
+		.asistente-escribiendo span {
+			animation: none;
+			opacity: 0.6;
+		}
+	}
+
+	@media print {
+		.asistente {
+			display: none;
+		}
+	}
+</style>
+
+<script>
+	import { buscarIntencion, respuestaPorDefecto } from '../data/asistente';
+
+	const raiz = document.querySelector<HTMLElement>('[data-asistente]');
+
+	if (raiz) {
+		const toggle = raiz.querySelector<HTMLButtonElement>('[data-asistente-toggle]');
+		const texto = raiz.querySelector<HTMLElement>('[data-asistente-texto]');
+		const panel = raiz.querySelector<HTMLElement>('[data-asistente-panel]');
+		const cerrar = raiz.querySelector<HTMLButtonElement>('[data-asistente-cerrar]');
+		const mensajes = raiz.querySelector<HTMLElement>('[data-asistente-mensajes]');
+		const formulario = raiz.querySelector<HTMLFormElement>('[data-asistente-form]');
+		const input = raiz.querySelector<HTMLInputElement>('[data-asistente-input]');
+
+		if (toggle && panel && mensajes && formulario && input) {
+			const base = raiz.dataset.base ?? '';
+			const email = raiz.dataset.email ?? '';
+			const linkedin = raiz.dataset.linkedin ?? '';
+			const cola: string[] = [];
+			let abierto = false;
+			let ocupado = false;
+
+			const desplazar = () => {
+				requestAnimationFrame(() => {
+					mensajes.scrollTop = mensajes.scrollHeight;
+				});
+			};
+
+			const abrirPanel = (valor: boolean) => {
+				abierto = valor;
+				panel.hidden = !valor;
+				toggle.setAttribute('aria-expanded', String(valor));
+				toggle.setAttribute('aria-label', valor ? 'Cerrar el asistente de Julia' : 'Abrir el asistente de Julia');
+				if (texto) texto.textContent = valor ? 'Cerrar' : '¿Hablamos?';
+				if (valor) {
+					window.setTimeout(() => input.focus(), 80);
+					desplazar();
+				}
+			};
+
+			const resolverHref = (href: string) => {
+				if (href === '@email') return email ? `mailto:${email}` : 'mailto:';
+				if (href === '@linkedin') return linkedin;
+				if (href.startsWith('/')) return `${base}${href}`;
+				return href;
+			};
+
+			const agregarMensaje = (
+				rol: 'usuario' | 'bot',
+				contenido: string,
+				enlaces: { etiqueta: string; href: string }[] = [],
+			) => {
+				const burbuja = document.createElement('div');
+				burbuja.className = `asistente-mensaje ${rol === 'usuario' ? 'es-usuario' : 'es-bot'}`;
+
+				for (const parrafo of contenido.split('\n')) {
+					if (!parrafo.trim()) continue;
+					const p = document.createElement('p');
+					p.textContent = parrafo;
+					burbuja.appendChild(p);
+				}
+
+				if (enlaces.length > 0) {
+					const nav = document.createElement('div');
+					nav.className = 'asistente-enlaces';
+					for (const enlace of enlaces) {
+						const ancla = document.createElement('a');
+						ancla.href = resolverHref(enlace.href);
+						ancla.textContent =
+							enlace.href === '@email' && email ? email : enlace.etiqueta;
+						if (/^https?:/i.test(ancla.href)) {
+							ancla.target = '_blank';
+							ancla.rel = 'noopener noreferrer';
+						}
+						nav.appendChild(ancla);
+					}
+					burbuja.appendChild(nav);
+				}
+
+				mensajes.appendChild(burbuja);
+				desplazar();
+			};
+
+			const mostrarEscribiendo = () => {
+				const burbuja = document.createElement('div');
+				burbuja.className = 'asistente-mensaje es-bot asistente-escribiendo';
+				burbuja.setAttribute('aria-hidden', 'true');
+				for (let i = 0; i < 3; i += 1) {
+					burbuja.appendChild(document.createElement('span'));
+				}
+				mensajes.appendChild(burbuja);
+				desplazar();
+				return burbuja;
+			};
+
+			const procesar = () => {
+				if (ocupado || cola.length === 0) return;
+				ocupado = true;
+				const pregunta = cola.shift();
+				if (!pregunta) {
+					ocupado = false;
+					return;
+				}
+
+				agregarMensaje('usuario', pregunta);
+				const indicador = mostrarEscribiendo();
+				const espera = 420 + Math.min(pregunta.length * 8, 520);
+
+				window.setTimeout(() => {
+					indicador.remove();
+					const intencion = buscarIntencion(pregunta) ?? respuestaPorDefecto;
+					agregarMensaje('bot', intencion.respuesta, intencion.enlaces);
+					ocupado = false;
+					procesar();
+				}, espera);
+			};
+
+			const encolar = (pregunta: string) => {
+				const limpia = pregunta.trim();
+				if (!limpia) return;
+				if (panel.hidden) abrirPanel(true);
+				cola.push(limpia);
+				procesar();
+			};
+
+			toggle.addEventListener('click', () => abrirPanel(!abierto));
+			cerrar?.addEventListener('click', () => {
+				abrirPanel(false);
+				toggle.focus();
+			});
+
+			formulario.addEventListener('submit', (evento) => {
+				evento.preventDefault();
+				const pregunta = input.value;
+				input.value = '';
+				encolar(pregunta);
+			});
+
+			raiz.querySelectorAll<HTMLButtonElement>('[data-asistente-pregunta]').forEach((boton) => {
+				boton.addEventListener('click', () => {
+					encolar(boton.dataset.asistentePregunta ?? boton.textContent ?? '');
+				});
+			});
+
+			document.addEventListener('keydown', (evento) => {
+				if (evento.key === 'Escape' && abierto) {
+					abrirPanel(false);
+					toggle.focus();
+				}
+			});
+		}
+	}
+</script>
